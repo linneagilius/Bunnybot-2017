@@ -1,8 +1,9 @@
 import wpilib
 
+
 class Flipper:
 
-    flipper_motor = wpilib.Spark
+    flipper_motor = wpilib.Talon
     spinning = False
 
     def turn_on(self):
