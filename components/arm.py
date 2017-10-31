@@ -1,9 +1,9 @@
 import wpilib
 
 
-class ArmExtention:
+class Arm:
     """
-    Controls movement of the bunny grabber arm.
+    Bunny grabber arm.
     """
 
     encoder = wpilib.AnalogPotentiometer
@@ -23,7 +23,7 @@ class ArmExtention:
         else:
             if self.extended:  # if we want the arm to be extended
                 self.motor.set(0.2)  # move arm forwards
-            elif self.encoder.get() > 0:  # if we don't want the arm to be extended but it is
+            elif self.encoder.get() > 0:  # arm shouldn't be extended but is
                 self.motor.set(-0.2)  # move arm back
             elif self.encoder.get() < 0:  # if the arm is underextended
                 self.motor.set(0.05)  # move arm forwards slowly
