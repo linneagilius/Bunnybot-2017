@@ -1,5 +1,6 @@
-import wpilib
 import enum
+
+import wpilib
 
 __all__ = ["BunnyGrabber"]
 
