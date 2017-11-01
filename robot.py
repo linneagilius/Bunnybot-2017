@@ -16,8 +16,17 @@ class Robot(MagicRobot):
     flipper = Flipper
 
     def createObjects(self):
+        self.fl_motor = CANTalon(0)
+        self.fr_motor = CANTalon(1)
+        self.bl_motor = CANTalon(2)
+        self.br_motor = CANTalon(3)
+
         self.robot_drive = wpilib.RobotDrive(
-            0, 1, 2, 3, motorController=CANTalon)
+            self.fl_motor,
+            self.fr_motor,
+            self.bl_motor,
+            self.br_motor)
+        self.drivetrain_gyro = wpilib.ADXRS450_Gyro()
         self.bunny_motor = wpilib.Talon(0)
 
         self.flipper_motor = wpilib.Talon(1)

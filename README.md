@@ -19,3 +19,7 @@ The code for our 2017 robot for the Pigmice for [Hide and Seek](http://team1540.
 
 ## Running the Simulator
 1. Run `./robot.py sim` (Linux/Mac), or `py -3 robot.py sim` (Windows)
+
+## Running Motion Profile Plotting
+Rendering test motion profiles can be useful for debugging to see the whole motion profile at once.
+1. Run `./render_motion_profiles.py` (Linux/Mac), or `py -3 render_motion_profiles.py` (Windows)
