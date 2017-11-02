@@ -14,8 +14,11 @@ class Arm:
     def set_stop_value(self, stop_value):
         self.stop_value = stop_value
 
-    def set_extended(self, extended):
-        self.extended = extended
+    def extend(self):
+        self.extended = True
+
+    def retract(self):
+        self.extended = False
 
     def execute(self):
         if self.encoder.get() > self.stop_value:  # if the arm is overextended
