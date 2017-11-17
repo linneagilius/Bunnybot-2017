@@ -1,7 +1,11 @@
 """Provide motion profiles for smooth and efficient motion"""
 
 import math
-from typing import NamedTuple
+from typing import NamedTuple, Callable
+
+import wpilib
+
+from common.pid import PIDCoefficients, PIDController
 
 
 class MotionProfile(NamedTuple):
@@ -151,3 +155,45 @@ class MotionProfile(NamedTuple):
 
         # Handle reverse (negative) directions
         return position if not self.reverse else -position
+
+
+class ProfileExecutor:
+    def __init__(self, pid_coefs: PIDCoefficients,
+                 motion_profile: MotionProfile,
+                 input_source: Callable[[], float],
+                 output: Callable[[float], None],
+                 acceptable_error_margin: float):
+        """Wrapper for a PID controller and a motion profile. Ties
+         them together for seemless profile execution
+
+        Uses `input_source` to retrieve current input for motion profile,
+         and `output` to write PID output. `acceptable_error_margin` is the
+         acceptable amount of error as a decimal.
+        """
+
+        self.pid = PIDController(pid_coefs, 1.0, -1.0)
+        self.profile_start_time = wpilib.Timer.getFPGATimestamp()
+        self.motion_profile = motion_profile
+        self.input_source = input_source
+        self.output = output
+        self.acceptable_error_margin = acceptable_error_margin
+
+    def update(self) -> bool:
+        """Updates motion profile and writes output. Returns `True`
+         if profile is completed (robot is within error margin of
+         target), otherwise `False`.
+        """
+        time_delta = wpilib.Timer.getFPGATimestamp() - self.profile_start_time
+
+        current_goal_position = self.motion_profile.position(time_delta)
+
+        current_input = self.input_source()
+
+        output = self.pid.get_output(current_input, current_goal_position)
+        self.output(output)
+        final_position = self.motion_profile.position(
+            self.motion_profile.end_time)
+
+        error_margin = abs(final_position - current_input) / \
+            abs(final_position)
+        return error_margin < self.acceptable_error_margin
