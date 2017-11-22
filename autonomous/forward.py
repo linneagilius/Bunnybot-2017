@@ -10,5 +10,5 @@ class Forward(AutonomousStateMachine):
 
     @state(first=True)
     def forward(self):
-        if self.drivetrain.forward(feet=25):
+        if self.drivetrain.forward(feet=30):
             self.done()
