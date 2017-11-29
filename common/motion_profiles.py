@@ -1,4 +1,4 @@
-"""Provide motion profiles for smooth and efficient motion"""
+#Provide motion profiles for smooth and efficient motion
 
 import math
 from typing import NamedTuple, Callable
@@ -9,41 +9,41 @@ from common.pid import PIDCoefficients, PIDController
 
 
 class MotionProfile(NamedTuple):
-    """Motion profile representing a specific desired move"""
-    """Robot's acceleration - slope of acceleration triangle"""
+    #Motion profile representing a specific desired move
+    #Robot's acceleration - slope of acceleration triangle
     acceleration: float
-    """Robot's deceleration - slope of deceleration triangle"""
+    #Robot's deceleration - slope of deceleration triangle
     deceleration: float
-    """Robot's max speed"""
+    #Robot's max speed
     max_speed: float
-    """Time to stop acceleration"""
+    #Time to stop acceleration
     acceleration_time: float
-    """Time to start decelerating"""
+    #Time to start decelerating
     deceleration_time: float
-    """Time when motion profile should be finished"""
+    #Time when motion profile should be finished
     end_time: float
-    """Boolean flag for reverse, or negative direction"""
+    #Boolean flag for reverse, or negative direction
     reverse: bool
 
     @staticmethod
     def generate_motion_profile(acceleration_time: float,
-                                deceleration_time: float, max_speed: float,
+                                deceleration_time: float, 
+                                max_speed: float,
                                 target_distance: float):
-        """Create a motion profile to efficiently travel `target_distance`
-         using the specified parameters
-
-        `acceleration_time`: Time it takes for robot to accelerate from rest
-         to maximum speed.
-        `deceleration_time`: Time it takes for robot to decelerate from
-         maximum speed to rest.
-        `max_speed`: The maximum speed the robot can go.
-        `target_distance`: The distance the robot should travel using the
-         motion profile.
-
-        ** Note: The units don't matter, as long as they are all the same
-         - but anyone**
-        **caught using non-metric units will be publicly shamed.**
         """
+        Create a motion profile to efficiently travel `target_distance`
+        using the specified parameters
+        'acceleration_time`: Time it takes for robot to accelerate from rest
+        to maximum speed.
+        'deceleration_time`: Time it takes for robot to decelerate from
+        maximum speed to rest.
+        'max_speed`: The maximum speed the robot can go.
+        target_distance`: The distance the robot should travel using the
+        motion profile.
+        ** Note: The units don't matter, as long as they are all the same
+         - but anyone caught using non-metric units will be publicly shamed.**
+        """
+        
         # Handle negative distances
         reverse = (target_distance < 0.0)
         target_distance = abs(target_distance)
@@ -85,13 +85,17 @@ class MotionProfile(NamedTuple):
         # If it can't accelerate all the way to max speed and back
         #  without overshooting, the motion profile will be triangular
         else:
-            # Distance to get to the top speed the robot will reach - since
-            #  it doesn't have time to accelerate fully this is not the
-            #  same as full_acceleration_distance
-            # This is calculated using the fact that the acceleration and
-            #  deceleration distances for a triangular motion profile are
-            #  directly proportional to the ratio of the acceleration and
-            #  deceleration times
+            
+            """
+            Distance to get to the top speed the robot will reach - since
+            it doesn't have time to accelerate fully this is not the
+            same as full_acceleration_distance.
+            This is calculated using the fact that the acceleration and
+            deceleration distances for a triangular motion profile are
+            directly proportional to the ratio of the acceleration and
+            deceleration times
+            """
+            
             partial_acceleration_distance = target_distance * \
                 (acceleration_time / (acceleration_time + deceleration_time))
             # Time to get to the top speed the robot will actually reach
@@ -116,20 +120,22 @@ class MotionProfile(NamedTuple):
                 acceleration_end_time, deceleration_start_time,
                 end_time, reverse)
             return motion_profile
-
-    # position() can be used for times after the end of the profile,
-    #  this is so that if the PID hasn't got the robot to the
-    #  target position by the end it can keep reducing the position
-    #  error till it reaches the target position
+        
+    """
+    position() can be used for times after the end of the profile,
+    this is so that if the PID hasn't got the robot to the
+    target position by the end it can keep reducing the position
+    error till it reaches the target position
+    """
+    
     def position(self, time):
-        """Get the optimal position at a specific time"""
-
+        #Get the optimal position at a specific time
         # Inner helper function to find the distance traveled
         #  when accelerating from an initial velocity for a time period
         def distance(initial_speed, acceleration, time):
-            """Find the distance traveled when accelerating from
-             `initial_speed` at `acceleration` for `time`
-            """
+            #find the distance traveled when accelerating from
+            #'initial_speed' at 'acceleration' for 'time'
+           
             # delta_x = vi + 1/2(at^2)
             return (initial_speed * time) + (0.5 * acceleration * time * time)
 
@@ -163,9 +169,10 @@ class ProfileExecutor:
                  input_source: Callable[[], float],
                  output: Callable[[float], None],
                  acceptable_error_margin: float):
+        
+        
         """Wrapper for a PID controller and a motion profile. Ties
          them together for seemless profile execution
-
         Uses `input_source` to retrieve current input for motion profile,
          and `output` to write PID output. `acceptable_error_margin` is the
          acceptable amount of error as a decimal.
@@ -179,10 +186,11 @@ class ProfileExecutor:
         self.acceptable_error_margin = acceptable_error_margin
 
     def update(self) -> bool:
-        """Updates motion profile and writes output. Returns `True`
-         if profile is completed (robot is within error margin of
-         target), otherwise `False`.
+        """Updates motion profile and writes output. 
+        Returns 'True' if profile is completed 
+        (robot is within error margin of target), otherwise `False`.
         """
+        
         time_delta = wpilib.Timer.getFPGATimestamp() - self.profile_start_time
 
         current_goal_position = self.motion_profile.position(time_delta)
